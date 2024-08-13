@@ -1,59 +1,30 @@
-//export const MainView = () => {
-//  return (
-//    <div>
-//      <div>Eloquent JavaScript</div>
-//      <div>Mastering JavaScript Functional Programming</div>
-//      <div>JavaScript: The Good Parts</div>
-//      <div>JavaScript: The Definitive Guide</div>
-//      <div>The Road to React</div>
-//    </div>
-//  );
-//};
 import { useState, useEffect } from "react";
 //import { useState } from "react";
 import { MovieCard } from "../movie-card/movie-card";
 import { MovieView } from "../movie-view/movie-view";
+import { LoginView } from "../login-view/login-view";
+import { SignupView } from "../signup-view/signup-view";
 export const MainView = () => {
+  const storedUser = JSON.parse(localStorage.getItem("user"));
+  const storedToken = localStorage.getItem("token");	
   const [movies, setMovies] = useState([]);
-//    {
-//      id: 1,
-//      title: 'Piku',
-//      description:
-//        'Piku Banerjee (Deepika Padukone) is an architect residing in Chittaranjan Park, Delhi with her 70-year-old widower father, Bhashkor (Amitabh Bachchan). Bhashkor is a hypochondriac with chronic constipation, who traces every problem to his bowel movements',
-//      genre: 'Comedy',
-//      director: 'Shoojit Sircar',
-//    },
-//    {
-//      id: 2,
-//      title: '3-Idiots',
-//      description:
-//        '3 IDIOTS follows college best friends, Farhan (R. Madhavan) and Raju (Sharman Joshi), who drive down to Shimla in search for Rancho (Aamir Khan), their long-lost buddy. During their journey, they recall the times they shared together, the mischief they got up to, and all that they learned from Rancho',
-//      genre: 'Drama',
-//      director: 'Rajkumar Hirani',
-//    },
-//    {
-//      id: 3,
-//      title: 'PK',
-//      description:
-//        'An alien on Earth loses the only device he can use to communicate with his spaceship. His innocent nature and child-like questions force the country to evaluate the impact of religious views on people',
-//      genre: 'Fantasy',
-//      director: 'Rajkumar Hirani',
-//    },
-
-//  ]);
-
+  const [user, setUser] =useState(storedUser? storedUser : null);
+  const [token, setToken] =useState(storedToken? storedToken : null);	 
   const [selectedMovie, setSelectedMovie] = useState(null);
 
+
   useEffect(() => {
-    fetch("https://moviedb-fdeb4b5f0aa4.herokuapp.com/movies")
+    
+    if (!token) {
+      return;	    
+    }	    
+    fetch("https://moviedb-fdeb4b5f0aa4.herokuapp.com/movies", {
+      headers: {Authorization: `Bearer ${token}`}	    
+    })
       .then((response) => response.json())
       .then((data) => {
         console.log("movies from api", data);      
         const moviesFromApi = data.map((movie) => {
-          console.log("ID", movie._id);      
-          console.log("title", movie.Title);      
-          console.log("description", movie.Description);      
-          console.log("director", movie.Director?.Name);      
           return {
             id: movie._id,
             title: movie.Title,
@@ -64,7 +35,23 @@ export const MainView = () => {
 
         setMovies(moviesFromApi);
       })
-  }, []);	
+  }, [token]);	
+  
+  if(!user) { 
+    return (
+      <>   
+	<LoginView 
+	 onLoggedIn={(user, token) => {
+	   setUser(user);
+           setToken(token);
+         }} 
+	/>
+	or
+	<SignupView />
+      </>	    
+    );
+  }
+
   
   if (selectedMovie) {
     return (
@@ -78,17 +65,22 @@ export const MainView = () => {
 
   return (
     <div>
-      {movies.map((movie) => {
-        //return <div key={movie.id}>{movie.title}</div>;
-        return (
-          <MovieCard
-            key={movie.id}
-            movie={movie}
-            onMovieClick={(newSelectedMovie) => {
-              setSelectedMovie(newSelectedMovie);
-            }}
-          />
-        );
-      })}
+      <div>
+        {movies.map((movie) => {
+          //return <div key={movie.id}>{movie.title}</div>;
+          return (
+            <MovieCard
+              key={movie.id}
+              movie={movie}
+              onMovieClick={(newSelectedMovie) => {
+                setSelectedMovie(newSelectedMovie);
+              }}
+            />
+          );
+        })}
+      </div>
+      <div>
+        <button onClick={() => { setUser(null); setToken(null); localStorage.clear(); }}>Logout</button> 
+      </div>
     </div>
   );
