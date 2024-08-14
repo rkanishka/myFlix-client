@@ -35,7 +35,7 @@ export const MovieView = ({ movies }) => {
             setIsFavorite(true);
         })
         .catch((e) => {
-            console.log(e);
+            console.log(e); 
         });       
     };
     const removefromFavorite = () => {
