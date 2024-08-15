@@ -4,14 +4,14 @@ import { Link } from "react-router-dom";
 import { Button, Card, Row } from "react-bootstrap";
 import "./movie-view.scss"
 
-export const MovieView = ({ movies }) => {
+export const MovieView = ({ movies,user,token, setUser }) => {
   const { movieId } = useParams();
   const [isFavorite, setIsFavorite] = useState(false);
   const movie = movies.find((b) => b.id === movieId);
 
   useEffect(() => {
-        if(user && user.FavoriteMovies)  {
-            const isFavorite = user.FavoriteMovies.includes(movieId);
+        if(user && user.favoriteMovies)  {
+            const isFavorite = user.favoriteMovies.includes(movieId);
             setIsFavorite(isFavorite);
         }
     }, [movieId, user]);
@@ -30,6 +30,7 @@ export const MovieView = ({ movies }) => {
             }
         })
         .then((data) => {
+            console.log(data);	
             setUser(data);
             localStorage.setItem("user", JSON.stringify(data));
             setIsFavorite(true);
@@ -52,6 +53,7 @@ export const MovieView = ({ movies }) => {
             }
         })
         .then((data) => {
+            console.log(data);	
             setUser(data);
             localStorage.setItem("user", JSON.stringify(data));
             setIsFavorite(false);

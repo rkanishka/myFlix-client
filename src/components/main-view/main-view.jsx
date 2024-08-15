@@ -11,10 +11,21 @@ import Col from 'react-bootstrap/Col';
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 export const MainView = () => {
-  const storedUser = JSON.parse(localStorage.getItem("user"));
+   const getStoredUser = () => {
+   const user = localStorage.getItem('user');
+    if (user) {
+      try {
+        return JSON.parse(user);
+      } catch (error) {
+        console.error('Error parsing user from localStorage:', error);
+        return null;
+      }
+    }
+    return null;	   
+  };
   const storedToken = localStorage.getItem("token");	
   const [movies, setMovies] = useState([]);
-  const [user, setUser] =useState(storedUser? storedUser : null);
+  const [user, setUser] =useState(getStoredUser());
   const [token, setToken] =useState(storedToken? storedToken : null);	 
   const [selectedMovie, setSelectedMovie] = useState(null); 
   const [userlist,setUserist] = useState([]);	
@@ -128,6 +139,9 @@ export const MainView = () => {
                  <Col md={8} style={{ border: "1px solid black" }}>	      
                    <MovieView
                       movies={movies}
+		      user={user}
+                      token={token}
+                      setUser={setUser}  
                    />
                  </Col>	     
 	       )	       
@@ -141,7 +155,7 @@ export const MainView = () => {
              <>
 	       {!user ? (
 		  <Navigate to="/login" replace />     
-	       ): movies.lenth === 0 ? (
+	       ): movies.length === 0 ? (
 		  <Col>The list is empty!</Col>     
 	       ): (
 		  <>
